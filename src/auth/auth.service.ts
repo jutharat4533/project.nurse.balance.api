@@ -1,5 +1,5 @@
 import { AccessTokenService } from '@/auth/access-token.service';
-import { LoginResponseDto } from '@/auth/dto/login-raspoonse.dto';
+import { LoginResponseDto } from '@/auth/dto/login-rasponse.dto';
 import { LoginDto } from '@/auth/dto/login.dto';
 import { RegisterDto } from '@/auth/dto/register.dto';
 import { BcryptService } from '@/infrastructure/hash/bcrypt.service';
@@ -39,7 +39,8 @@ export class AuthService {
 
     const access_token = await this.accessTokenService.sign({
       sub: user.id,
-      email: user.email
+      email: user.email,
+      role: user.role
     });
     return { access_token };
   }

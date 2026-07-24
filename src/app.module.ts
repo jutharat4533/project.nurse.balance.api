@@ -10,6 +10,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { JobsModule } from './jobs/jobs.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from '@/auth/guards/auth.guard';
+import { RoleGuard } from '@/auth/guards/roles.guard';
 
 @Module({
   imports: [
@@ -29,6 +30,10 @@ import { AuthGuard } from '@/auth/guards/auth.guard';
     {
       provide: APP_GUARD,
       useClass: AuthGuard
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RoleGuard
     }
   ]
 })

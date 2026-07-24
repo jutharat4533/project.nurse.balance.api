@@ -11,6 +11,6 @@ export class ShiftsController {
   @Put('/:id')
   updateShift() {}
 
-  @Delete('id')
+  @Delete('/:id')
   removeShift() {}
 }
