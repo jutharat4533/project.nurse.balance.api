@@ -5,6 +5,7 @@ import {
 } from '@/database/generated/prisma/internal/prismaNamespace';
 import { PrismaService } from '@/database/prisma.service';
 import { BcryptService } from '@/infrastructure/hash/bcrypt.service';
+import { UpdateProfileDto } from '@/user/dto/update-profile.dto';
 import { UserCreateInput } from '@/user/types/user.type';
 import { ConflictException, Injectable } from '@nestjs/common';
 
@@ -39,6 +40,17 @@ export class UserService {
   ): Promise<UserGetPayload<{ omit: { password: true } }> | null> {
     return this.prisma.user.findUnique({
       where: { id },
+      omit: { password: true }
+    });
+  }
+
+  async updateProfile(
+    id: string,
+    input: UpdateProfileDto
+  ): Promise<UserGetPayload<{ omit: { password: true } }>> {
+    return this.prisma.user.update({
+      where: { id },
+      data: input,
       omit: { password: true }
     });
   }

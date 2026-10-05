@@ -1,4 +1,4 @@
-import { Gender } from '@/database/generated/prisma/enums';
+import { Gender, Role } from '@/database/generated/prisma/enums';
 
 export class UserResponseDto {
   id: string;
@@ -14,6 +14,8 @@ export class UserResponseDto {
   gender: Gender | null;
 
   avatarUrl: string | null;
+
+  role: Role;
 
   createdAt: Date;
 

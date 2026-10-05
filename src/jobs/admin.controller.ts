@@ -1,4 +1,5 @@
 import { Roles } from '@/common/@roles/roles.decorator';
+import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { MessageResponseDto } from '@/common/dto/message-response.dto';
 import { Role } from '@/database/generated/prisma/enums';
 import { CreateJobDto } from '@/jobs/dto/create-job.dto';
@@ -36,5 +37,10 @@ export class AdminController {
   }
 
   @Post('/:id/apply')
-  applyJob() {}
+  async applyJob(
+    @CurrentUser('sub') userId: string,
+    @Param('id') id: string
+  ): Promise<MessageResponseDto> {
+    return await this.jobsService.applyToJob(userId, id);
+  }
 }

@@ -7,7 +7,7 @@ export class JobsController {
   constructor(private readonly jobsService: JobsService) {}
 
   @Get('')
-  async getAllJobs(): Promise<JobResponseDto[]> {
+  async getAllJob(): Promise<JobResponseDto[]> {
     return await this.jobsService.getAllJobs();
   }
 }

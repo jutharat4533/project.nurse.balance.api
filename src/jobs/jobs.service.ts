@@ -3,6 +3,7 @@ import { CreateJobDto } from '@/jobs/dto/create-job.dto';
 import { JobResponseDto } from '@/jobs/dto/job-response.dto';
 import { UpdateJobDto } from '@/jobs/dto/update-job.dto';
 import {
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   NotFoundException
@@ -27,7 +28,7 @@ export class JobsService {
       });
       console.log('Job created successfully in database');
     } catch (error) {
-      console.error('Database Error:', error);
+      console.error('Database at JobDemand Error:', error);
       throw new InternalServerErrorException('Failed to create job demand');
     }
   }
@@ -97,5 +98,35 @@ export class JobsService {
     } catch {
       throw new InternalServerErrorException('Failed to delete job demand');
     }
+  }
+
+  //PATH POST/jobs/:id/apply
+  async applyToJob(userId: string, id: string): Promise<{ message: string }> {
+    const jobId = Number(id);
+    if (isNaN(jobId)) {
+      throw new NotFoundException('Invalid Job ID format');
+    }
+
+    const job = await this.prisma.jobDemand.findUnique({
+      where: { id: jobId }
+    });
+
+    if (!job) {
+      throw new NotFoundException(`Job demand with ID ${id} not found`);
+    }
+
+    const existingApplication = await this.prisma.jobApplication.findFirst({
+      where: { jobId, userId }
+    });
+
+    if (existingApplication) {
+      throw new ConflictException('You have already applied to this job');
+    }
+
+    await this.prisma.jobApplication.create({
+      data: { jobId, userId }
+    });
+
+    return { message: 'Applied to job successfully' };
   }
 }

@@ -1,5 +1,5 @@
 import { AuthService } from '@/auth/auth.service';
-import { LoginResponseDto } from '@/auth/dto/login-rasponse.dto';
+import { LoginResponseDto } from '@/auth/dto/login-response.dto';
 import { LoginDto } from '@/auth/dto/login.dto';
 import { RegisterDto } from '@/auth/dto/register.dto';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';

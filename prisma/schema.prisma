@@ -1,14 +1,12 @@
-
 generator client {
-  provider = "prisma-client"
-  output   = "../src/database/generated/prisma"
+  provider     = "prisma-client"
+  output       = "../src/database/generated/prisma"
   moduleFormat = "cjs"
 }
 
 datasource db {
   provider = "postgresql"
 }
-
 
 // Enums
 enum Role {
@@ -19,6 +17,14 @@ enum Role {
 enum ShiftStatus {
   ACTIVE
   PENDING
+}
+
+enum ShiftSlot {
+  SHIFT
+  DAY
+  NIGHT
+  MORNING
+  EVENING
 }
 
 enum JobStatus {
@@ -44,118 +50,140 @@ enum Gender {
   FEMALE
 }
 
+
+
 // Models
 model User {
-  id                String               @id @default(uuid()) @db.Uuid
-  email             String               @unique
-  password          String
-  role              Role                 @default(USER)
-  firstName         String               @map("first_name")
-  lastName          String               @map("last_name")
-  dob               DateTime?            @db.Date
-  gender            Gender?
-  avatarUrl         String?              @map("avatar_url")
-  createdAt         DateTime             @map("created_at") @default(now()) @db.Timestamptz()
-  updatedAt         DateTime             @map("updated_at") @updatedAt @db.Timestamptz()
+  id        String    @id @default(uuid()) @db.Uuid
+  email     String    @unique
+  password  String
+  role      Role      @default(USER)
+  firstName String    @map("first_name")
+  lastName  String    @map("last_name")
+  dob       DateTime? @db.Date
+  gender    Gender?
+  avatarUrl String?   @map("avatar_url")
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
 
-  workplaceSettings     UserWorkplaceSetting[]   
-  shifts                Shift[]                 
-  jobApplications       JobApplication[]         
+  workplaceSettings UserWorkplaceSetting[]
+  shifts            Shift[]
+  specialIncomes    SpecialIncome[]
+  jobApplications   JobApplication[]
 
   @@map("users")
 }
 
 model UserWorkplaceSetting {
-  id                Int                  @id @default(autoincrement())
-  userId            String               @map("user_id") @db.Uuid
-  workplaceName     String               @map("workplace_name")
-  baseSalary        Decimal?             @map("base_salary")
-  specialAllowance  Decimal?             @map("special_allowance")
+  id               Int      @id @default(autoincrement())
+  userId           String   @map("user_id") @db.Uuid
+  workplaceName    String   @map("workplace_name")
+  baseSalary       Decimal? @map("base_salary")
+  specialAllowance Decimal? @map("special_allowance")
 
-  user              User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  shiftRates        CustomShiftRate[]    
-  deductions        CustomDeduction[] 
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shiftRates CustomShiftRate[]
+  deductions CustomDeduction[]
+  shifts     Shift[]
 
-  @@map("user_workplace_settings")   
+  @@unique([userId, workplaceName])
+  @@map("user_workplace_settings")
 }
 
 model CustomShiftRate {
-  id                 Int                  @id @default(autoincrement())
-  workplaceSettingId Int                  @map("workplace_setting_id")
-  category           ShiftCategory        
-  shiftName          String               @map("shift_name")
-  payRate            Decimal              @map("pay_rate")
+  id                 Int           @id @default(autoincrement())
+  workplaceSettingId Int           @map("workplace_setting_id")
+  category           ShiftCategory
+  shiftName          String        @map("shift_name")
+  payRate            Decimal       @map("pay_rate")
 
-  workplaceSetting   UserWorkplaceSetting @relation(fields: [workplaceSettingId], references: [id], onDelete: Cascade)
+  workplaceSetting UserWorkplaceSetting @relation(fields: [workplaceSettingId], references: [id], onDelete: Cascade)
 
   @@map("custom_shift_rates")
 }
 
 model CustomDeduction {
-  id                 Int                  @id @default(autoincrement())
-  workplaceSettingId Int                  @map("workplace_setting_id")
-  name               String              
-  amount             Decimal            
-  isPercent          Boolean              @map("is_percent")@default(false) 
+  id                 Int     @id @default(autoincrement())
+  workplaceSettingId Int     @map("workplace_setting_id")
+  name               String
+  amount             Decimal
+  isPercent          Boolean @default(false) @map("is_percent")
 
-  workplaceSetting   UserWorkplaceSetting @relation(fields: [workplaceSettingId], references: [id], onDelete: Cascade)
-  
+  workplaceSetting UserWorkplaceSetting @relation(fields: [workplaceSettingId], references: [id], onDelete: Cascade)
+
   @@map("custom_deductions")
 }
 
 model Shift {
-  id                Int                  @id @default(autoincrement())
-  userId            String               @map("user_id") @db.Uuid
-  workplace         String               
-  startTime         DateTime             @map("start_time") 
-  endTime           DateTime             @map("end_time") 
-  status            ShiftStatus          @default(ACTIVE)
-  createdAt         DateTime             @map("created_at") @default(now()) @db.Timestamptz()
-  updatedAt         DateTime             @map("updated_at") @updatedAt @db.Timestamptz()
-  deletedAt         DateTime?            @map("deleted_at") @db.Timestamptz()
+  id                 Int         @id @default(autoincrement())
+  userId             String      @map("user_id") @db.Uuid
+  workplaceSettingId Int?        @map("workplace_setting_id")
+  workplace          String
+  startTime          DateTime    @map("start_time")
+  endTime            DateTime    @map("end_time")
+  shiftSlot          ShiftSlot?  @map("shift_slot")
+  status             ShiftStatus @default(ACTIVE)
+  createdAt          DateTime    @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt          DateTime    @updatedAt @map("updated_at") @db.Timestamptz()
+  deletedAt          DateTime?   @map("deleted_at") @db.Timestamptz()
 
-  user              User                 @relation(fields: [userId], references: [id])
-  compensation      ShiftCompensation?
+  user             User                  @relation(fields: [userId], references: [id])
+  workplaceSetting UserWorkplaceSetting? @relation(fields: [workplaceSettingId], references: [id], onDelete: SetNull)
+  compensation     ShiftCompensation?
 
   @@map("shifts")
 }
 
+model SpecialIncome {
+  id        Int      @id @default(autoincrement())
+  userId    String   @map("user_id") @db.Uuid
+  name      String
+  amount    Decimal
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("special_incomes")
+}
+
 model ShiftCompensation {
-  id                Int                  @id @default(autoincrement())
-  userId            String               @map("user_id") @db.Uuid
-  shiftId           Int                  @map("shift_id") @unique
-  payRate           Decimal              @map("pay_rate") 
-  shiftType         String               @map("shift_type") 
-  shift             Shift                @relation(fields: [shiftId], references: [id])
+  id        Int     @id @default(autoincrement())
+  userId    String  @map("user_id") @db.Uuid
+  shiftId   Int     @unique @map("shift_id")
+  payRate   Decimal @map("pay_rate")
+  shiftType String  @map("shift_type")
+  shift     Shift   @relation(fields: [shiftId], references: [id])
+
   @@map("shift_compensation")
 }
 
 model JobDemand {
-  id                Int                  @id @default(autoincrement())
-  title             String
-  location          String              
-  aboutWord         String?              @map("about_word") 
-  compensation      Float                
-  status            JobStatus            @default(OPEN)
-  isHighlighted     Boolean              @map("is_highlighted") @default(false) 
-  createdAt         DateTime             @map("created_at") @default(now()) @db.Timestamptz()
-  updatedAt         DateTime             @map("updated_at") @updatedAt @db.Timestamptz()
-  deletedAt         DateTime?            @map("deleted_at") @db.Timestamptz()
+  id            Int       @id @default(autoincrement())
+  title         String
+  location      String
+  aboutWord     String?   @map("about_word")
+  compensation  Float
+  status        JobStatus @default(OPEN)
+  isHighlighted Boolean   @default(false) @map("is_highlighted")
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
+  deletedAt     DateTime? @map("deleted_at") @db.Timestamptz()
 
-  applications      JobApplication[]
+  applications JobApplication[]
 
   @@map("job_demands")
 }
 
 model JobApplication {
-  id                Int                  @id @default(autoincrement())
-  jobId             Int                  @map("job_id")
-  userId            String               @map("user_id") @db.Uuid
-  status            ApplicationStatus    @default(APPLIED)
-  createdAt         DateTime             @map("created_at") @default(now()) @db.Timestamptz()
+  id        Int               @id @default(autoincrement())
+  jobId     Int               @map("job_id")
+  userId    String            @map("user_id") @db.Uuid
+  status    ApplicationStatus @default(APPLIED)
+  createdAt DateTime          @default(now()) @map("created_at") @db.Timestamptz()
 
-  job               JobDemand            @relation(fields: [jobId], references: [id])
-  user              User                 @relation(fields: [userId], references: [id])
+  job  JobDemand @relation(fields: [jobId], references: [id])
+  user User      @relation(fields: [userId], references: [id])
 
   @@map("job_applications")
 }

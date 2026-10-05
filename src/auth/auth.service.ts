@@ -1,5 +1,5 @@
 import { AccessTokenService } from '@/auth/access-token.service';
-import { LoginResponseDto } from '@/auth/dto/login-rasponse.dto';
+import { LoginResponseDto } from '@/auth/dto/login-response.dto';
 import { LoginDto } from '@/auth/dto/login.dto';
 import { RegisterDto } from '@/auth/dto/register.dto';
 import { BcryptService } from '@/infrastructure/hash/bcrypt.service';
@@ -42,7 +42,21 @@ export class AuthService {
       email: user.email,
       role: user.role
     });
-    return { access_token };
+    return {
+      access_token,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        dob: user.dob,
+        gender: user.gender,
+        avatarUrl: user.avatarUrl,
+        role: user.role,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt
+      }
+    };
   }
 
   async getMe(id: string): Promise<UserResponseDto> {
