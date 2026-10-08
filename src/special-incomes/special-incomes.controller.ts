@@ -5,14 +5,25 @@ import {
   UpdateSpecialIncomeDto
 } from '@/special-incomes/dto/special-income.dto';
 import { SpecialIncomesService } from '@/special-incomes/special-incomes.service';
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put
+} from '@nestjs/common';
 
 @Controller('special-incomes')
 export class SpecialIncomesController {
   constructor(private readonly specialIncomesService: SpecialIncomesService) {}
 
   @Get('')
-  findAll(@CurrentUser('sub') userId: string): Promise<SpecialIncomeResponseDto[]> {
+  findAll(
+    @CurrentUser('sub') userId: string
+  ): Promise<SpecialIncomeResponseDto[]> {
     return this.specialIncomesService.findAll(userId);
   }
 

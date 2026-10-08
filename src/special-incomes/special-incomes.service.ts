@@ -4,7 +4,11 @@ import {
   SpecialIncomeResponseDto,
   UpdateSpecialIncomeDto
 } from '@/special-incomes/dto/special-income.dto';
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException
+} from '@nestjs/common';
 
 @Injectable()
 export class SpecialIncomesService {
@@ -43,7 +47,9 @@ export class SpecialIncomesService {
     userId: string,
     dto: UpdateSpecialIncomeDto
   ): Promise<SpecialIncomeResponseDto> {
-    const income = await this.prisma.specialIncome.findUnique({ where: { id } });
+    const income = await this.prisma.specialIncome.findUnique({
+      where: { id }
+    });
     if (!income) throw new NotFoundException('Special income not found');
     if (income.userId !== userId) {
       throw new ForbiddenException('Access denied');
@@ -57,7 +63,9 @@ export class SpecialIncomesService {
   }
 
   async remove(id: number, userId: string): Promise<void> {
-    const income = await this.prisma.specialIncome.findUnique({ where: { id } });
+    const income = await this.prisma.specialIncome.findUnique({
+      where: { id }
+    });
     if (!income) throw new NotFoundException('Special income not found');
     if (income.userId !== userId) {
       throw new ForbiddenException('Access denied');

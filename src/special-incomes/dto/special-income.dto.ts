@@ -15,7 +15,9 @@ export class CreateSpecialIncomeDto {
   amount: number;
 }
 
-export class UpdateSpecialIncomeDto extends PartialType(CreateSpecialIncomeDto) {}
+export class UpdateSpecialIncomeDto extends PartialType(
+  CreateSpecialIncomeDto
+) {}
 
 export class SpecialIncomeResponseDto {
   id: number;

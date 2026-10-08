@@ -5,7 +5,8 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const corsOrigins = (process.env.CORS_ORIGINS ?? '').split(',')
+  const corsOrigins = (process.env.CORS_ORIGINS ?? '')
+    .split(',')
     .map((origin) => origin.trim())
     .filter(Boolean);
 

@@ -6,6 +6,10 @@ import { CustomShiftRateService } from './custom-shift-rate.service';
 
 @Module({
   controllers: [WorkplaceSettingsController],
-  providers: [WorkplaceSettingsService, CustomDeductionService, CustomShiftRateService]
+  providers: [
+    WorkplaceSettingsService,
+    CustomDeductionService,
+    CustomShiftRateService
+  ]
 })
 export class WorkplaceSettingsModule {}
