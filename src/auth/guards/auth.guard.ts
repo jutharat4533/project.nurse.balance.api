@@ -43,6 +43,8 @@ export class AuthGuard implements CanActivate {
       if (error instanceof JsonWebTokenError) {
         throw new UnauthorizedException('Invalid token');
       }
+
+      throw error;
     }
     return true;
   }
